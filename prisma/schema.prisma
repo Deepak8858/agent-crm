@@ -1,0 +1,238 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Contact Management
+model Contact {
+  id                    String   @id @default(cuid())
+  firstName            String
+  lastName             String
+  email                String?  @unique
+  phoneNumber          String?
+  alternatePhone       String?
+  preferredLanguage    String   @default("en")
+  status               ContactStatus @default(LEAD)
+  tags                 String[] 
+  lastInteractionDate  DateTime?
+  communicationConsent Boolean  @default(true)
+  recordingConsent     Boolean  @default(false)
+  ownerId              String?
+  companyId            String?
+  createdBy            String   @default("USER")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  company              Company?    @relation(fields: [companyId], references: [id])
+  activities           Activity[]
+  deals                Deal[]
+  tickets              Ticket[]
+  consents             Consent[]
+  
+  @@map("contacts")
+}
+
+enum ContactStatus {
+  LEAD
+  PROSPECT
+  CUSTOMER
+  INACTIVE
+  DO_NOT_CONTACT
+}
+
+// Company/Account Management
+model Company {
+  id           String   @id @default(cuid())
+  name         String
+  industry     String?
+  website      String?
+  phoneNumber  String?
+  address      String?
+  ownerId      String?
+  healthScore  Int?     @default(50)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  contacts     Contact[]
+  deals        Deal[]
+  activities   Activity[]
+  
+  @@map("companies")
+}
+
+// Deal Pipeline
+model Deal {
+  id           String     @id @default(cuid())
+  name         String
+  amount       Decimal?
+  stage        DealStage  @default(PROSPECTING)
+  probability  Int?       @default(10)
+  closeDate    DateTime?
+  nextAction   String?
+  contactId    String?
+  companyId    String?
+  ownerId      String?
+  lastUpdatedBy String    @default("USER")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  contact      Contact?   @relation(fields: [contactId], references: [id])
+  company      Company?   @relation(fields: [companyId], references: [id])
+  activities   Activity[]
+  
+  @@map("deals")
+}
+
+enum DealStage {
+  PROSPECTING
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+// Activity Logging (Voice Agent Integration)
+model Activity {
+  id              String       @id @default(cuid())
+  type            ActivityType
+  subject         String
+  summary         String?
+  details         String?
+  duration        Int?         // seconds
+  outcome         String?
+  transcriptUrl   String?
+  recordingUrl    String?
+  aiSentiment     String?
+  aiIntent        String?
+  followUpRequired Boolean     @default(false)
+  followUpDate    DateTime?
+  contactId       String?
+  companyId       String?
+  dealId          String?
+  createdBy       String       @default("USER")
+  completedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  contact         Contact?     @relation(fields: [contactId], references: [id])
+  company         Company?     @relation(fields: [companyId], references: [id])
+  deal            Deal?        @relation(fields: [dealId], references: [id])
+  
+  @@map("activities")
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  TASK
+  NOTE
+  VOICE_AGENT_CALL
+}
+
+// Support Tickets
+model Ticket {
+  id            String       @id @default(cuid())
+  subject       String
+  description   String?
+  status        TicketStatus @default(OPEN)
+  priority      Priority     @default(MEDIUM)
+  category      String?
+  contactId     String?
+  assignedTo    String?
+  voiceSummary  String?
+  aiTags        String[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  
+  contact       Contact?     @relation(fields: [contactId], references: [id])
+  
+  @@map("tickets")
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// API Key Management for Voice Agent Integration
+model ApiKey {
+  id          String   @id @default(cuid())
+  name        String   // "Voice Agent Production"
+  keyHash     String   @unique // bcrypt hashed
+  keyPrefix   String   // "va_12345..." for display
+  scopes      String[] // ["contacts:read", "activities:write"]
+  isActive    Boolean  @default(true)
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  usageCount  Int      @default(0)
+  usageLogs   ApiKeyUsage[]
+  
+  @@map("api_keys")
+}
+
+model ApiKeyUsage {
+  id        String   @id @default(cuid())
+  apiKeyId  String
+  endpoint  String
+  method    String
+  ipAddress String?
+  userAgent String?
+  success   Boolean
+  createdAt DateTime @default(now())
+  
+  apiKey    ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  
+  @@map("api_key_usage")
+}
+
+// Audit & Compliance
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String   // "USER" or "VOICE_AGENT"
+  action    String
+  entity    String
+  entityId  String
+  changes   Json?
+  createdAt DateTime @default(now())
+  
+  @@map("audit_logs")
+}
+
+model Consent {
+  id        String      @id @default(cuid())
+  contactId String
+  type      ConsentType
+  granted   Boolean
+  timestamp DateTime    @default(now())
+  
+  contact   Contact     @relation(fields: [contactId], references: [id])
+  
+  @@map("consents")
+}
+
+enum ConsentType {
+  COMMUNICATION
+  RECORDING
+  DATA_PROCESSING
+}
