@@ -13,7 +13,9 @@
     "db:studio": "prisma studio",
     "db:deploy": "prisma migrate deploy",
     "postbuild": "prisma generate",
-    "deploy": "npm run db:deploy && npm start"
+    "deploy": "npm run db:deploy && npm start",
+    "pre-deploy-check": "node scripts/pre-deploy-check.js",
+    "prepare-deploy": "node scripts/prepare-deployment.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.33.0",

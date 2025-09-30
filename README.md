@@ -242,7 +242,75 @@ docker build -t agent-crm .
 docker run -p 3000:3000 --env-file .env agent-crm
 ```
 
-## 📝 API Documentation
+## � Production Deployment
+
+### DigitalOcean App Platform (Recommended)
+
+The easiest way to deploy Agent CRM is using DigitalOcean App Platform:
+
+#### Quick Deploy
+1. **Validate Deployment Readiness**:
+   ```bash
+   npm run pre-deploy-check
+   ```
+
+2. **Push to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Ready for production deployment"
+   git push origin main
+   ```
+
+3. **Deploy to DigitalOcean**:
+   - Visit [DigitalOcean Apps](https://cloud.digitalocean.com/apps)
+   - Create new app from GitHub repository
+   - Use the included `.do/app.yaml` configuration
+   - Add environment variables (see `.env.example`)
+   - Deploy!
+
+#### Cost Estimate
+- **Basic Setup**: ~$12/month
+  - App Platform (Basic): $5/month
+  - PostgreSQL (Basic): $7/month
+- **Professional Setup**: ~$27/month  
+  - App Platform (Professional): $12/month
+  - PostgreSQL (Professional): $15/month
+
+#### Environment Variables Required
+```bash
+DATABASE_URL=${db.DATABASE_URL}          # Auto-generated
+NEXTAUTH_SECRET=your-32-char-secret      # Generate with: openssl rand -base64 32
+NEXTAUTH_URL=${APP_URL}                  # Auto-generated
+CLERK_SECRET_KEY=sk_live_your_key        # From Clerk dashboard
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_your_key
+```
+
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+### Alternative Deployment Options
+
+#### Docker (Self-hosted)
+```bash
+# Build and run with Docker
+docker build -t agent-crm .
+docker run -p 3000:3000 --env-file .env agent-crm
+```
+
+#### Vercel
+```bash
+# Deploy to Vercel (requires external PostgreSQL)
+npx vercel --prod
+```
+
+### Post-Deployment Checklist
+- [ ] Health check passes: `/api/health`
+- [ ] Database migrations completed
+- [ ] Authentication working (Clerk)
+- [ ] Voice Agent APIs accessible
+- [ ] SSL certificate active
+- [ ] Monitoring configured
+
+## �📝 API Documentation
 
 Visit `/api-docs` when running the application for interactive API documentation.
 
