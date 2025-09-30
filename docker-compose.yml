@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:password@db:5432/agent_crm
+      - NEXTAUTH_SECRET=your-32-character-secret-key
+      - NEXTAUTH_URL=http://localhost:3000
+      - CLERK_SECRET_KEY=sk_test_your_clerk_secret
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_key
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=agent_crm
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

@@ -3,8 +3,10 @@ const nextConfig = {
   // Enable experimental features for better performance
   experimental: {
     // Enable app directory (already using it)
-    serverComponentsExternalPackages: ['@prisma/client'],
   },
+  
+  // External packages for server components
+  serverExternalPackages: ['@prisma/client'],
   
   // Production optimizations
   productionBrowserSourceMaps: false,
