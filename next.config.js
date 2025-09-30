@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable experimental features for better performance
-  experimental: {
-    // Enable app directory (already using it)
-  },
+  experimental: {},
   
   // External packages for server components
   serverExternalPackages: ['@prisma/client'],
