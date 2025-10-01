@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -60,7 +60,7 @@ export default function DealsPage() {
   const { searchContacts } = useContacts()
   const { searchCompanies } = useCompanies()
 
-  const loadDeals = async () => {
+  const loadDeals = useCallback(async () => {
     try {
       const response = await getDeals({ 
         ...filters, 
@@ -73,35 +73,35 @@ export default function DealsPage() {
       toast.error('Failed to load deals')
       console.error('Error loading deals:', error)
     }
-  }
+  }, [getDeals, filters, pagination.page])
 
-  const loadContacts = async () => {
+  const loadContacts = useCallback(async () => {
     try {
       const response = await searchContacts({ limit: 100 })
       setContacts(response.contacts || [])
     } catch (error) {
       console.error('Error loading contacts:', error)
     }
-  }
+  }, [searchContacts])
 
-  const loadCompanies = async () => {
+  const loadCompanies = useCallback(async () => {
     try {
       const response = await searchCompanies({ limit: 100 })
       setCompanies(response.companies || [])
     } catch (error) {
       console.error('Error loading companies:', error)
     }
-  }
+  }, [searchCompanies])
 
   useEffect(() => {
     loadDeals()
     loadContacts()
     loadCompanies()
-  }, [])
+  }, [loadDeals, loadContacts, loadCompanies])
 
   useEffect(() => {
     loadDeals()
-  }, [pagination.page])
+  }, [loadDeals])
 
   const handleFilter = () => {
     setPagination({ ...pagination, page: 1 })

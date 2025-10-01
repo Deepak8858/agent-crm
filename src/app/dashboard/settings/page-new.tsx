@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -26,7 +26,7 @@ export default function SettingsPage() {
 
   const { getApiKeys, updateApiKey, revokeApiKey, getApiKeyUsage, loading } = useApiKeys()
 
-  const loadApiKeys = async () => {
+  const loadApiKeys = useCallback(async () => {
     try {
       const response = await getApiKeys()
       setApiKeys(response.apiKeys || [])
@@ -34,11 +34,11 @@ export default function SettingsPage() {
       toast.error('Failed to load API keys')
       console.error('Error loading API keys:', error)
     }
-  }
+  }, [getApiKeys])
 
   useEffect(() => {
     loadApiKeys()
-  }, [])
+  }, [loadApiKeys])
 
   const handleToggleApiKey = async (apiKeyId: string, currentStatus: boolean) => {
     try {

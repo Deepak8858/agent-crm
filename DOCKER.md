@@ -3,7 +3,7 @@
 ## 🐳 Docker Setup Commands
 
 ### 1. Build the Docker Image
-```bash
+```bash  
 docker build -t agent-crm .
 ```
 

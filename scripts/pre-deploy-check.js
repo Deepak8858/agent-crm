@@ -15,7 +15,7 @@ const checks = [];
 // Check 1: Required files exist
 const requiredFiles = [
   'package.json',
-  'next.config.js',
+  'next.config.ts',
   '.env.example',
   'prisma/schema.prisma',
   'src/app/api/health/route.ts',

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,7 +37,7 @@ export default function ContactsPage() {
   const { searchContacts, deleteContact, loading } = useContacts()
   const { searchCompanies } = useCompanies()
 
-  const loadContacts = async () => {
+  const loadContacts = useCallback(async () => {
     try {
       const response = await searchContacts({ 
         ...filters, 
@@ -50,25 +50,25 @@ export default function ContactsPage() {
       toast.error('Failed to load contacts')
       console.error('Error loading contacts:', error)
     }
-  }
+  }, [searchContacts, filters, pagination.page])
 
-  const loadCompanies = async () => {
+  const loadCompanies = useCallback(async () => {
     try {
       const response = await searchCompanies({ limit: 100 })
       setCompanies(response.companies || [])
     } catch (error) {
       console.error('Error loading companies:', error)
     }
-  }
+  }, [searchCompanies])
 
   useEffect(() => {
     loadContacts()
     loadCompanies()
-  }, [])
+  }, [loadContacts, loadCompanies])
 
   useEffect(() => {
     loadContacts()
-  }, [pagination.page])
+  }, [loadContacts])
 
   const handleSearch = () => {
     setPagination({ ...pagination, page: 1 })

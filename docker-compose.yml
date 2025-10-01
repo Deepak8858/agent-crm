@@ -7,11 +7,15 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:password@db:5432/agent_crm
-      - NEXTAUTH_SECRET=your-32-character-secret-key
+      - DATABASE_URL=postgresql://postgres:password@db:5432/agent_crm 
+      - NEXTAUTH_SECRET=2zW4bfdt9NR5pBwKt21WTRmAMV8sbHcLxbZSH/zzBGg=
       - NEXTAUTH_URL=http://localhost:3000
-      - CLERK_SECRET_KEY=sk_test_your_clerk_secret
-      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_key
+      - CLERK_SECRET_KEY=sk_test_your_actual_clerk_secret
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_actual_clerk_key
+      - NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+      - NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+      - NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+      - NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
     depends_on:
       - db
     restart: unless-stopped
